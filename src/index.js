@@ -10,4 +10,4 @@ router.use("/api", api.routes());
 app.use(router.routes());
 app.use(router.allowedMethods());
 
-app.listen(4000);
+app.listen(process.env.NODE_PORT || 4000);
