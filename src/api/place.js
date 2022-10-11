@@ -4,8 +4,10 @@ const router = new Router();
 
 router.get("/", async (ctx, next) => {
   try {
-    const res = await client.query(`select * from public.craft limit 2;`);
-    console.log(res);
+    const { id } = ctx.query;
+    const res = await client.query(
+      `select * from public.place where place_id = ${id};`,
+    );
     ctx.body = { status: 200, data: res.rows };
   } catch (error) {
     console.log(error);
