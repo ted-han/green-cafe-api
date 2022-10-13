@@ -2,7 +2,7 @@ const client = require("../db");
 
 async function placeList(ctx, next) {
   try {
-    const { id } = ctx.params;
+    const { offset, limit } = ctx.query;
     const sql = `
         select
           p.place_id
@@ -25,13 +25,14 @@ async function placeList(ctx, next) {
           ) pt
         ON p.place_id = pt.place_id
         order by km asc
-        limit 20;
+        limit ${limit}
+        offset ${offset};
       `;
     const res = await client.query(sql);
-    ctx.body = { status: 200, data: res.rows };
+    ctx.body = res.rows;
   } catch (error) {
     console.log(error);
-    ctx.body = { status: 500, data: error };
+    ctx.body = error;
   }
 }
 
@@ -64,10 +65,11 @@ async function placeDetail(ctx, next) {
         WHERE p.place_id = ${id};
       `;
     const res = await client.query(sql);
-    ctx.body = { status: 200, data: res.rows };
+
+    ctx.body = res.rows[0];
   } catch (error) {
     console.log(error);
-    ctx.body = { status: 500, data: error };
+    ctx.body = error;
   }
 }
 
