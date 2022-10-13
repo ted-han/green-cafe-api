@@ -2,13 +2,13 @@ const client = require("../db");
 
 async function placeList(ctx, next) {
   try {
-    const { offset, limit } = ctx.query;
+    const { latitude, longitude, offset, limit } = ctx.query;
     const sql = `
         select
           p.place_id
           ,p.name
           ,p.address
-          ,round(sqrt(power(abs(p.latitude - 37.497952) * 110, 2) + power(abs(p.longitude - 127.027619) * 88, 2)), 1) as km
+          ,round(sqrt(power(abs(p.latitude - ${latitude}) * 110, 2) + power(abs(p.longitude - ${longitude}) * 88, 2)), 1) as km
           ,pi.url
           ,pt.tag_name
         FROM place p
