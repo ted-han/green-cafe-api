@@ -31,7 +31,7 @@ async function placeList(ctx, next) {
     const res = await client.query(sql);
     ctx.body = res.rows;
   } catch (error) {
-    console.log(error);
+    console.log(`placeList: ${error}`);
     ctx.body = error;
   }
 }
@@ -39,6 +39,8 @@ async function placeList(ctx, next) {
 async function placeDetail(ctx, next) {
   try {
     const { id } = ctx.params;
+    const { latitude, longitude } = ctx.query;
+
     const sql = `
         select
           p.name
@@ -46,7 +48,7 @@ async function placeDetail(ctx, next) {
           ,p.instagram
           ,p.latitude
           ,p.longitude
-          ,round(sqrt(power(abs(p.latitude - 37.497952) * 110, 2) + power(abs(p.longitude - 127.027619) * 88, 2)), 1) as km
+          ,round(sqrt(power(abs(p.latitude - ${latitude}) * 110, 2) + power(abs(p.longitude - ${longitude}) * 88, 2)), 1) as km
           ,pi.url
           ,pt.tag_name
         FROM place p
@@ -65,10 +67,9 @@ async function placeDetail(ctx, next) {
         WHERE p.place_id = ${id};
       `;
     const res = await client.query(sql);
-
     ctx.body = res.rows[0];
   } catch (error) {
-    console.log(error);
+    console.log(`placeDetail: ${error}`);
     ctx.body = error;
   }
 }
