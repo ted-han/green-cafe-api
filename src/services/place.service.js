@@ -39,7 +39,6 @@ async function placeList(ctx, next) {
 async function placeDetail(ctx, next) {
   try {
     const { id } = ctx.params;
-    const { latitude, longitude } = ctx.query;
 
     const sql = `
         select
@@ -48,7 +47,6 @@ async function placeDetail(ctx, next) {
           ,p.instagram
           ,p.latitude
           ,p.longitude
-          ,round(sqrt(power(abs(p.latitude - ${latitude}) * 110, 2) + power(abs(p.longitude - ${longitude}) * 88, 2)), 1) as km
           ,pi.url
           ,pt.tag_name
         FROM place p
