@@ -2,7 +2,7 @@ const client = require("../db");
 
 async function placeList(ctx, next) {
   try {
-    const { latitude, longitude, offset, limit } = ctx.query;
+    const { latitude, longitude, tag, offset, limit } = ctx.query;
     let res;
     let sql;
     // 권한이 없거나 현재위치 정보 조회에 실패한 경우
@@ -12,19 +12,25 @@ async function placeList(ctx, next) {
           p.place_id
           ,p.name
           ,p.address
+          ,p.discount
           ,pi.url
-          ,pt.tag_name
+          ,pt.tag_id
         FROM place p
         LEFT OUTER JOIN (
-          select place_id, url
-          from place_image
-          where img_id = 1
+            select place_id, url
+            from place_image
+            where img_id = 1
           ) pi
         ON p.place_id = pi.place_id
-        LEFT OUTER JOIN (
-          select place_id, json_agg(tag_name) as tag_name
-          from place_tag
-          group by place_id
+        JOIN (
+            select place_id, json_agg(tag_id) as tag_id
+            from place_tag
+            where place_id in (
+                select place_id
+                from place_tag
+                ${tag && `where tag_id in (${tag})`}
+              )
+            group by place_id
           ) pt
         ON p.place_id = pt.place_id
         order by place_id asc
@@ -37,9 +43,10 @@ async function placeList(ctx, next) {
           p.place_id
           ,p.name
           ,p.address
+          ,p.discount
           ,round(sqrt(power(abs(p.latitude - ${latitude}) * 110, 2) + power(abs(p.longitude - ${longitude}) * 88, 2)), 1) as km
           ,pi.url
-          ,pt.tag_name
+          ,pt.tag_id
         FROM place p
         LEFT OUTER JOIN (
           select place_id, url
@@ -47,10 +54,15 @@ async function placeList(ctx, next) {
           where img_id = 1
           ) pi
         ON p.place_id = pi.place_id
-        LEFT OUTER JOIN (
-          select place_id, json_agg(tag_name) as tag_name
-          from place_tag
-          group by place_id
+        JOIN (
+            select place_id, json_agg(tag_id) as tag_id
+            from place_tag
+            where place_id in (
+                select place_id
+                from place_tag
+                ${tag && `where tag_id in (${tag})`}
+              )
+            group by place_id
           ) pt
         ON p.place_id = pt.place_id
         order by km asc
