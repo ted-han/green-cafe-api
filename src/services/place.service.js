@@ -86,11 +86,12 @@ async function placeDetail(ctx, next) {
         select
           p.name
           ,p.address
+          ,p.discount
           ,p.instagram
           ,p.latitude
           ,p.longitude
           ,pi.url
-          ,pt.tag_name
+          ,pt.tag_id
         FROM place p
         LEFT OUTER JOIN (
           select place_id, json_agg(url) as url
@@ -98,8 +99,8 @@ async function placeDetail(ctx, next) {
           group by place_id
           ) pi
         ON p.place_id = pi.place_id
-        LEFT OUTER JOIN (
-          select place_id, json_agg(tag_name) as tag_name
+        JOIN (
+          select place_id, json_agg(tag_id) as tag_id
           from place_tag
           group by place_id
           ) pt
