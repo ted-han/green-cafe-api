@@ -16,6 +16,21 @@ async function reuseHistory(ctx, next) {
   }
 }
 
+async function addReuse(ctx, next) {
+  try {
+    const { userId, reuseDt, memo } = ctx.request.body;
+    const sql = `
+      INSERT INTO reuse_history(user_id, reuse_dt, memo) VALUES(${userId}, '${reuseDt}', '${memo}');
+    `;
+    const res = await client.query(sql);
+    ctx.body = res.rows[0];
+  } catch (error) {
+    console.log(`reuseHistory: ${error}`);
+    ctx.body = error;
+  }
+}
+
 module.exports = {
   reuseHistory,
+  addReuse,
 };
